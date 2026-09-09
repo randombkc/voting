@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition, useState } from "react";
-import { updateSessionStatus } from "@/app/admin/voting/actions";
+import { useRouter } from "next/navigation";
+import { deleteVotingSession, updateSessionStatus } from "@/app/admin/voting/actions";
 import { SessionStatus } from "@prisma/client";
 
 export default function SessionStatusManager({ 
@@ -13,6 +14,7 @@ export default function SessionStatusManager({
   currentStatus: SessionStatus;
   positionCount: number;
 }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -33,8 +35,31 @@ export default function SessionStatusManager({
     });
   };
 
+  const handleDelete = () => {
+    if (currentStatus === "OPEN") {
+      setError("Close the session before deleting it.");
+      return;
+    }
+
+    const confirmed = confirm(
+      "Delete this voting session? All positions, candidates, votes, participation records, and linked result data will be permanently deleted.",
+    );
+    if (!confirmed) return;
+
+    setError(null);
+    startTransition(async () => {
+      const res = await deleteVotingSession(sessionId);
+      if (res.success) {
+        router.push("/admin/voting");
+        router.refresh();
+      } else {
+        setError(res.error || "Failed to delete session");
+      }
+    });
+  };
+
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex flex-wrap items-center justify-end gap-3">
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
         currentStatus === "OPEN" ? "bg-green-100 text-green-800" :
         currentStatus === "CLOSED" ? "bg-red-100 text-red-800" :
@@ -60,6 +85,17 @@ export default function SessionStatusManager({
           className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-3 py-1 text-sm font-medium text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
         >
           {isPending ? "Updating..." : "Close Session"}
+        </button>
+      )}
+
+      {currentStatus !== "OPEN" && (
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={isPending}
+          className="inline-flex items-center rounded-md border border-red-300 bg-white px-3 py-1 text-sm font-medium text-red-700 shadow-sm hover:bg-red-50 disabled:opacity-50"
+        >
+          {isPending ? "Deleting..." : "Delete Session"}
         </button>
       )}
       

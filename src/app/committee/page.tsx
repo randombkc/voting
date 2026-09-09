@@ -12,7 +12,7 @@ export default function CommitteePage() {
       <div className="page-frame">
         <header className="page-header">
           <Link href="/" className="wordmark">Batch 2023</Link>
-          <Link href="/" className="back-link">Home</Link>
+          <Link href="/" className="home-link"><span aria-hidden="true">←</span> Home</Link>
         </header>
         <div className="public-intro">
           <p className="eyebrow">Batch 2023</p>
