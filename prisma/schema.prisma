@@ -1,0 +1,218 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Group {
+  PERIZIA
+  CRUX
+  BOTH
+}
+
+enum SessionStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum CandidateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ACTIVE
+  INACTIVE
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Admin {
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  passwordHash String
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  adminId   String
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model VoterSession {
+  id              String        @id @default(uuid())
+  tokenHash       String        @unique
+  voterId         String
+  voter           Voter         @relation(fields: [voterId], references: [id], onDelete: Cascade)
+  votingSessionId String
+  votingSession   VotingSession @relation(fields: [votingSessionId], references: [id], onDelete: Cascade)
+  expiresAt       DateTime
+  createdAt       DateTime      @default(now())
+}
+
+model OtpToken {
+  id        String   @id @default(uuid())
+  email     String
+  otpHash   String
+  purpose   String   @default("VOTER_VERIFICATION")
+  ip        String?
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model VotingSession {
+  id               String               @id @default(uuid())
+  name             String
+  group            Group
+  status           SessionStatus        @default(DRAFT)
+  startTime        DateTime?
+  endTime          DateTime?
+  resultsPublished Boolean              @default(false)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  positions        Position[]
+  participations   VoterParticipation[]
+  votes            Vote[]
+  voterSessions    VoterSession[]
+}
+
+model Position {
+  id              String                 @id @default(uuid())
+  name            String
+  votingSessionId String
+  votingSession   VotingSession          @relation(fields: [votingSessionId], references: [id])
+  minSelections   Int
+  maxSelections   Int
+  isMandatory     Boolean                @default(true)
+  displayOrder    Int                    @default(0)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  candidates      Candidate[]
+  votes           Vote[]
+  applications    CommitteeApplication[]
+
+  @@index([votingSessionId])
+  @@index([displayOrder])
+  @@unique([votingSessionId, name])
+}
+
+model Candidate {
+  id           String          @id @default(uuid())
+  name         String
+  email        String?
+  phoneNumber  String?         @unique
+  positionId   String
+  position     Position        @relation(fields: [positionId], references: [id])
+  status       CandidateStatus @default(PENDING)
+  displayOrder Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  votes        Vote[]
+
+  @@index([positionId])
+  @@index([status])
+}
+
+model Voter {
+  id             String               @id @default(uuid())
+  name           String
+  email          String               @unique
+  verified       Boolean              @default(false)
+  eligible       Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  participations VoterParticipation[]
+  sessions       VoterSession[]
+}
+
+model VoterParticipation {
+  id              String        @id @default(uuid())
+  voterId         String
+  voter           Voter         @relation(fields: [voterId], references: [id])
+  votingSessionId String
+  votingSession   VotingSession @relation(fields: [votingSessionId], references: [id])
+  eligible        Boolean       @default(true)
+  verified        Boolean       @default(false)
+  hasVoted        Boolean       @default(false)
+  votedAt         DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  votes           Vote[]
+
+  @@unique([voterId, votingSessionId])
+  @@index([votingSessionId])
+  @@index([voterId])
+  @@index([hasVoted])
+}
+
+model Vote {
+  id                   String             @id @default(uuid())
+  votingSessionId      String
+  votingSession        VotingSession      @relation(fields: [votingSessionId], references: [id])
+  positionId           String
+  position             Position           @relation(fields: [positionId], references: [id])
+  candidateId          String
+  candidate            Candidate          @relation(fields: [candidateId], references: [id])
+  voterParticipationId String
+  voterParticipation   VoterParticipation @relation(fields: [voterParticipationId], references: [id])
+  createdAt            DateTime           @default(now())
+
+  @@unique([voterParticipationId, candidateId])
+  @@index([votingSessionId])
+  @@index([positionId])
+  @@index([candidateId])
+  @@index([voterParticipationId])
+}
+
+model CommitteeApplication {
+  id                     String            @id @default(uuid())
+  name                   String
+  phoneNumber            String            @unique
+  email                  String?
+  selectedGroup          Group?
+  wantsOfficialCommittee Boolean           @default(false)
+  positionPreferenceText String?
+  positionPreferenceId   String?
+  positionPreference     Position?         @relation(fields: [positionPreferenceId], references: [id])
+  contributionPreference String?
+  otherContributionText  String?
+  feedback               String?
+  status                 ApplicationStatus @default(PENDING)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  @@index([status])
+  @@index([email])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  actorId    String?
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([action])
+  @@index([createdAt])
+}
