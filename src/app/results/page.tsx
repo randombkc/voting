@@ -54,7 +54,7 @@ export default function ResultsPage() {
       <div className="page-frame">
         <header className="page-header">
           <Link href="/" className="wordmark">Batch 2023</Link>
-          <Link href="/" className="back-link">Home</Link>
+          <Link href="/" className="home-link"><span aria-hidden="true">←</span> Home</Link>
         </header>
 
         <section className="results-hero">

@@ -195,3 +195,65 @@ export async function deletePosition(id: string) {
     return { success: false, error: (error as Error).message };
   }
 }
+
+export async function deleteVotingSession(id: string) {
+  if (!(await verifyAdminSession())) throw new Error("Unauthorized");
+
+  try {
+    const session = await prisma.votingSession.findUnique({
+      where: { id },
+      include: { positions: { select: { id: true } } },
+    });
+
+    if (!session) throw new Error("Voting Session not found");
+    if (session.status === "OPEN") {
+      throw new Error("Close the voting session before deleting it.");
+    }
+
+    const positionIds = session.positions.map((position) => position.id);
+    const admin = await getAdminUser();
+
+    await prisma.$transaction(async (tx) => {
+      if (positionIds.length > 0) {
+        await tx.committeeApplication.updateMany({
+          where: { positionPreferenceId: { in: positionIds } },
+          data: { positionPreferenceId: null },
+        });
+      }
+
+      await tx.vote.deleteMany({ where: { votingSessionId: id } });
+      await tx.voterSession.deleteMany({ where: { votingSessionId: id } });
+      await tx.voterParticipation.deleteMany({ where: { votingSessionId: id } });
+
+      if (positionIds.length > 0) {
+        await tx.candidate.deleteMany({ where: { positionId: { in: positionIds } } });
+        await tx.position.deleteMany({ where: { id: { in: positionIds } } });
+      }
+
+      await tx.votingSession.delete({ where: { id } });
+
+      await tx.auditLog.create({
+        data: {
+          action: "VOTING_SESSION_DELETED",
+          actorId: admin?.id ?? null,
+          targetType: "VotingSession",
+          targetId: id,
+          metadata: {
+            name: session.name,
+            group: session.group,
+            status: session.status,
+            deletedPositionCount: positionIds.length,
+          },
+        },
+      });
+    });
+
+    revalidatePath("/admin/voting");
+    revalidatePath(`/admin/voting/${id}`);
+    revalidatePath("/admin/candidates");
+    revalidatePath("/admin/results");
+    return { success: true };
+  } catch (error: unknown) {
+    return { success: false, error: (error as Error).message || "Failed to delete voting session" };
+  }
+}

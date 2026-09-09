@@ -17,9 +17,18 @@ export default function HomePage() {
         </section>
 
         <nav aria-label="Voting sections" className="home-actions">
-          <Link href="/vote" className="action-button action-primary"><span>01</span> Vote <b>↗</b></Link>
-          <Link href="/results" className="action-button"><span>02</span> Results <b>↗</b></Link>
-          <Link href="/committee" className="action-button"><span>03</span> Committee <b>↗</b></Link>
+          <div className="home-action-item">
+            <p>Cast your ballot for the current voting session.</p>
+            <Link href="/vote" className="action-button action-primary"><span>01</span> Vote <b>↗</b></Link>
+          </div>
+          <div className="home-action-item">
+            <p>See live counts while voting is open and final results after it closes.</p>
+            <Link href="/results" className="action-button"><span>02</span> Results <b>↗</b></Link>
+          </div>
+          <div className="home-action-item">
+            <p>Fill out the form to participate in the committee.</p>
+            <Link href="/committee" className="action-button"><span>03</span> Committee <b>↗</b></Link>
+          </div>
         </nav>
       </div>
     </main>

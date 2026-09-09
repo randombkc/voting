@@ -86,9 +86,38 @@ textarea {
 }
 
 .wordmark,
-.back-link {
+.back-link,
+.home-link {
   color: var(--ink);
   text-decoration: none;
+}
+
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 0 17px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.home-link span {
+  color: var(--accent-deep);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.home-link:hover {
+  background: var(--ink);
+  color: var(--paper);
+  transform: translateY(-2px);
 }
 
 .header-mark,
@@ -156,6 +185,19 @@ textarea {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+.home-action-item {
+  display: grid;
+  gap: 12px;
+}
+
+.home-action-item p {
+  min-height: 2.6em;
+  margin: 0 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .action-button {
@@ -514,6 +556,10 @@ textarea {
 
   .home-actions {
     grid-template-columns: 1fr;
+  }
+
+  .home-action-item p {
+    min-height: auto;
   }
 
   .action-button {

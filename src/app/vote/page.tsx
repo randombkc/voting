@@ -126,7 +126,7 @@ export default function VotePage() {
       <div className="page-shell min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="public-card">
-            <Link href="/" className="back-link">← Home</Link>
+            <Link href="/" className="home-link"><span aria-hidden="true">←</span> Home</Link>
             <h2 className="display-heading display-heading-small mt-8">Vote Submitted</h2>
             <p className="mt-4 text-sm text-gray-600">
               Your vote has been submitted successfully.
@@ -143,7 +143,7 @@ export default function VotePage() {
         <div className="mx-auto max-w-5xl px-4">
           <div className="mb-8 flex items-center justify-between border-b border-black pb-4">
             <Link href="/" className="wordmark">Batch 2023</Link>
-            <Link href="/" className="back-link">Home</Link>
+            <Link href="/" className="home-link"><span aria-hidden="true">←</span> Home</Link>
           </div>
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900">{ballot.name}</h1>
@@ -219,7 +219,7 @@ export default function VotePage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="mb-5 flex items-center justify-between">
           <Link href="/" className="wordmark">Batch 2023</Link>
-          <Link href="/" className="back-link">Home</Link>
+          <Link href="/" className="home-link"><span aria-hidden="true">←</span> Home</Link>
         </div>
         <h2 className="display-heading display-heading-small">Voting</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
