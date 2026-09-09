@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { getCurrentBallot, requestOtp, submitVote, verifyOtp } from "./actions";
 
 type BallotPosition = {
@@ -122,10 +123,11 @@ export default function VotePage() {
 
   if (step === "SUBMITTED") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="page-shell min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <h2 className="text-2xl font-bold text-gray-900">Vote Submitted</h2>
+          <div className="public-card">
+            <Link href="/" className="back-link">← Home</Link>
+            <h2 className="display-heading display-heading-small mt-8">Vote Submitted</h2>
             <p className="mt-4 text-sm text-gray-600">
               Your vote has been submitted successfully.
             </p>
@@ -137,8 +139,12 @@ export default function VotePage() {
 
   if (step === "BALLOT" && ballot) {
     return (
-      <div className="min-h-screen bg-gray-50 py-10">
+      <div className="page-shell min-h-screen py-8">
         <div className="mx-auto max-w-5xl px-4">
+          <div className="mb-8 flex items-center justify-between border-b border-black pb-4">
+            <Link href="/" className="wordmark">Batch 2023</Link>
+            <Link href="/" className="back-link">Home</Link>
+          </div>
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900">{ballot.name}</h1>
             <p className="mt-1 text-sm text-gray-600">{ballot.group} voting session</p>
@@ -209,9 +215,13 @@ export default function VotePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="page-shell min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Voting Portal</h2>
+        <div className="mb-5 flex items-center justify-between">
+          <Link href="/" className="wordmark">Batch 2023</Link>
+          <Link href="/" className="back-link">Home</Link>
+        </div>
+        <h2 className="display-heading display-heading-small">Voting</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           {step === "REQUEST"
             ? "Enter your details to verify your eligibility."
@@ -220,7 +230,7 @@ export default function VotePage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="public-card">
           {error && (
             <div className="rounded-md bg-red-50 p-4 mb-6">
               <div className="text-sm text-red-700">{error}</div>

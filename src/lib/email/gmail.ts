@@ -1,19 +1,22 @@
 import nodemailer from "nodemailer";
 
+const gmailUser = process.env.GMAIL_USER?.trim();
+const gmailAppPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s/g, "");
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: gmailUser,
+    pass: gmailAppPassword,
   },
 });
 
 export async function sendVerificationOtpEmail(email: string, otp: string) {
-  const fromEmail = process.env.EMAIL_FROM || process.env.GMAIL_USER;
+  const fromEmail = process.env.EMAIL_FROM?.trim() || gmailUser;
 
-  if (!fromEmail || !process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+  if (!fromEmail || !gmailUser || !gmailAppPassword) {
     console.error("Gmail SMTP env vars are missing.");
     return { success: false, error: "Email configuration is missing." };
   }

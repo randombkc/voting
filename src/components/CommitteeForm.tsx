@@ -84,16 +84,16 @@ export default function CommitteeForm() {
 
   if (isSuccess) {
     return (
-      <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
-        <h2 className="text-2xl font-bold text-green-600 mb-4">Thank you for submitting the form.</h2>
+      <div className="public-card committee-card">
+        <h2 className="display-heading display-heading-small mb-4">Thank you.</h2>
         <p className="text-gray-700">Your response has been recorded successfully.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Committee Application</h1>
+    <div className="public-card committee-card">
+      <h1 className="display-heading display-heading-small mb-6">Committee Application</h1>
 
       {serverError && (
         <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-md border border-red-200">
