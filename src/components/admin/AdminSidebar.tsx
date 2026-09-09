@@ -15,21 +15,20 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="w-64 bg-gray-900 text-white flex flex-col h-screen fixed">
-      <div className="h-16 flex items-center px-6 border-b border-gray-800">
-        <h1 className="text-xl font-bold tracking-tight">Admin Portal</h1>
+    <aside className="admin-sidebar">
+      <div className="admin-sidebar-header">
+        <h1>Batch 2023</h1>
+        <span>Admin</span>
       </div>
       
-      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+      <nav className="admin-nav" aria-label="Admin navigation">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                isActive ? "bg-gray-800 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
-              }`}
+              className={isActive ? "admin-nav-link admin-nav-link-active" : "admin-nav-link"}
             >
               {item.name}
             </Link>
@@ -37,16 +36,16 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-800">
+      <div className="admin-sidebar-footer">
         <form action="/admin/logout" method="POST">
           <button
             type="submit"
-            className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white"
+            className="admin-nav-link admin-logout"
           >
             Logout
           </button>
         </form>
       </div>
-    </div>
+    </aside>
   );
 }

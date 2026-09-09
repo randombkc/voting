@@ -8,9 +8,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Perizia-Crux Voting Platform",
-  description:
-    "Official voting platform for Batch 2023. Cast your vote for committee positions.",
+  title: "Batch 2023 Voting Page",
+  description: "Batch 2023 voting page.",
 };
 
 export default function RootLayout({

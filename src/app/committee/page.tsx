@@ -1,23 +1,30 @@
+import Link from "next/link";
 import CommitteeForm from "@/components/CommitteeForm";
 
 export const metadata = {
-  title: "Committee Application | Perizia-Crux",
-  description: "Apply to take part in the Perizia or Crux committee.",
+  title: "Committee | Batch 2023",
+  description: "Apply to take part in the Batch 2023 committee.",
 };
 
 export default function CommitteePage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto text-center mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+    <main className="page-shell">
+      <div className="page-frame">
+        <header className="page-header">
+          <Link href="/" className="wordmark">Batch 2023</Link>
+          <Link href="/" className="back-link">Home</Link>
+        </header>
+        <div className="public-intro">
+          <p className="eyebrow">Batch 2023</p>
+          <h1 className="display-heading display-heading-small">
           Take Part in the Committee
-        </h1>
-        <p className="mt-4 text-lg text-gray-600">
+          </h1>
+          <p className="muted-copy">
           Please fill out the following application form carefully.
-        </p>
+          </p>
+        </div>
+        <CommitteeForm />
       </div>
-
-      <CommitteeForm />
-    </div>
+    </main>
   );
 }
