@@ -127,10 +127,10 @@ export async function verifyVoterSession() {
 
   const session = await prisma.voterSession.findUnique({
     where: { tokenHash },
-    include: { 
+    include: {
       voter: true,
-      votingSession: true
-    }
+      votingSession: true,
+    },
   });
 
   if (!session || session.expiresAt < new Date()) {
@@ -138,6 +138,15 @@ export async function verifyVoterSession() {
   }
 
   if (session.votingSession.status !== "OPEN") {
+    return null;
+  }
+
+  const now = new Date();
+  if (session.votingSession.startTime && session.votingSession.startTime > now) {
+    return null;
+  }
+
+  if (session.votingSession.endTime && session.votingSession.endTime < now) {
     return null;
   }
 

@@ -2,7 +2,7 @@
 
 import { PrismaClient, Group, SessionStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { verifyAdminSession } from "@/lib/session";
+import { getAdminUser, verifyAdminSession } from "@/lib/session";
 
 const prisma = new PrismaClient();
 
@@ -20,8 +20,23 @@ export async function createVotingSession(data: { name: string; group: Group; st
         group: data.group,
         startTime: data.startTime || null,
         endTime: data.endTime || null,
-        status: "DRAFT", // Enforced server-side
-      }
+        status: "DRAFT",
+      },
+    });
+
+    const admin = await getAdminUser();
+    await prisma.auditLog.create({
+      data: {
+        action: "VOTING_SESSION_CREATED",
+        actorId: admin?.id ?? null,
+        targetType: "VotingSession",
+        targetId: session.id,
+        metadata: {
+          name: session.name,
+          group: session.group,
+          status: session.status,
+        },
+      },
     });
 
     revalidatePath("/admin/voting");
@@ -64,7 +79,22 @@ export async function updateSessionStatus(id: string, newStatus: SessionStatus) 
 
     await prisma.votingSession.update({
       where: { id },
-      data: { status: newStatus }
+      data: { status: newStatus },
+    });
+
+    const admin = await getAdminUser();
+    await prisma.auditLog.create({
+      data: {
+        action: newStatus === "OPEN" ? "VOTING_SESSION_OPENED" : "VOTING_SESSION_CLOSED",
+        actorId: admin?.id ?? null,
+        targetType: "VotingSession",
+        targetId: id,
+        metadata: {
+          from: session.status,
+          to: newStatus,
+          name: session.name,
+        },
+      },
     });
 
     revalidatePath(`/admin/voting/${id}`);
@@ -98,15 +128,32 @@ export async function createPosition(data: {
        throw new Error("Mandatory positions must require at least 1 selection.");
     }
 
-    await prisma.position.create({
+    const position = await prisma.position.create({
       data: {
         name: data.name,
         votingSessionId: data.votingSessionId,
         minSelections: data.minSelections,
         maxSelections: data.maxSelections,
         isMandatory: data.isMandatory,
-        displayOrder: data.displayOrder
-      }
+        displayOrder: data.displayOrder,
+      },
+    });
+
+    const admin = await getAdminUser();
+    await prisma.auditLog.create({
+      data: {
+        action: "VOTING_POSITION_CREATED",
+        actorId: admin?.id ?? null,
+        targetType: "Position",
+        targetId: position.id,
+        metadata: {
+          votingSessionId: data.votingSessionId,
+          name: data.name,
+          minSelections: data.minSelections,
+          maxSelections: data.maxSelections,
+          isMandatory: data.isMandatory,
+        },
+      },
     });
 
     revalidatePath(`/admin/voting/${data.votingSessionId}`);
